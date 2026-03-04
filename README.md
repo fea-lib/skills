@@ -5,6 +5,7 @@ A collection of reusable AI agent skills — modular packages that extend agent 
 | Skill | Description |
 |-------|-------------|
 | [astro-starlight-charts](.agents/skills/astro-starlight-charts/SKILL.md) | Conventions, recipes, and anti-patterns for building static SVG chart components with Astro and D3. |
+| [research](.agents/skills/research/SKILL.md) | Structured research support: finding and analysing resources, answering questions from evidence, and producing a documented research report. |
 
 ## Structure
 

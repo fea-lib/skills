@@ -141,6 +141,18 @@ short `SKILL.md` and no bundled resources is better than one padded with content
 change agent behaviour. The same principle applies internally: if a `references/` file would
 never be needed, don't create it.
 
+### Minimal context footprint
+When creating or updating skill documents, prefer brevity over completeness. Omit anything an
+agent can reasonably infer. Use bullet points over paragraphs, examples over explanations, and
+`references/` files over inline content. The goal is the smallest document that produces correct
+agent behaviour — not the most thorough one.
+
+### Task parallelisation
+When implementing a skill or working on tasks within this repository, identify independent
+work units and execute them concurrently. For example: scaffold directory structure, read
+existing files, and fetch external references can all happen in the same round-trip. Parallelism
+reduces latency and keeps context lean by not accumulating unnecessary intermediate results.
+
 ### No auxiliary docs in skill directories
 Skills should contain only what an agent needs to do the job. Do not create files like
 `INSTALLATION_GUIDE.md`, `QUICK_REFERENCE.md`, `CHANGELOG.md`, or other meta documentation
@@ -169,12 +181,15 @@ provides human-readable context about the skill itself. General repository docs 
 5. **Write `SKILL.md`** — fill in frontmatter (`name`, `description`) and the body following
    the guidelines above. Remove any TODO placeholders from the scaffold.
 
-6. **Package** — use `package_skill.py` if distributing:
+6. **Update `README.md`** — add a row to the skills table at the top of `README.md` with the
+   skill name (linked to its `SKILL.md`) and a one-sentence description taken from the frontmatter.
+
+7. **Package** — use `package_skill.py` if distributing:
    ```bash
    python scripts/package_skill.py .agents/skills/<skill-name>
    ```
 
-7. **Iterate** — test on real tasks and improve based on observed gaps. Watch transcripts,
+8. **Iterate** — test on real tasks and improve based on observed gaps. Watch transcripts,
    not just outputs: if agents independently write the same helper code across invocations,
    that code belongs in `scripts/`.
 
