@@ -82,13 +82,15 @@ print_skill_summary() {
 }
 
 # ---------------------------------------------------------------------------
-# confirm_path <resolved-path> <verb>
+# confirm_path <resolved-path> <verb> [suffix]
 # Prints the resolved path and asks the user to confirm, correct, or abort.
+# If the user provides a new base path, <suffix> is appended automatically.
 # On success, sets CONFIRMED_PATH to the accepted path.
 # ---------------------------------------------------------------------------
 confirm_path() {
   local resolved="$1"
-  local verb="$2"  # "Install to" or "Update in"
+  local verb="$2"    # "Install to" or "Update in"
+  local suffix="${3:-}"
 
   while true; do
     printf "%s: %s\n" "${verb}" "${resolved}"
@@ -106,8 +108,9 @@ confirm_path() {
         exit 0
         ;;
       *)
-        # Treat any other input as a new path.
-        resolved="${answer/#\~/${HOME}}"  # expand leading ~
+        # Treat any other input as a new base path; reattach the suffix.
+        local base="${answer/#\~/${HOME}}"  # expand leading ~
+        resolved="${base}${suffix}"
         ;;
     esac
   done
@@ -183,7 +186,7 @@ cmd_install() {
 
   # Confirm the install path with the user.
   CONFIRMED_PATH=""
-  confirm_path "${target_dir}/${SKILLS_SUBDIR}/${skill_name}" "Install to"
+  confirm_path "${target_dir}/${SKILLS_SUBDIR}/${skill_name}" "Install to" "/${SKILLS_SUBDIR}/${skill_name}"
   local install_dest="${CONFIRMED_PATH}"
 
   # Guard against reinstalling.
