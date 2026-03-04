@@ -92,24 +92,31 @@ confirm_path() {
   local verb="$2"    # "Install to" or "Update in"
   local suffix="${3:-}"
 
+  # Open /dev/tty once for the lifetime of this function so that repeated
+  # reads work reliably when the script is piped via curl | bash.
+  exec 3</dev/tty
+
   while true; do
     printf "%s: %s\n" "${verb}" "${resolved}"
     printf "Confirm? [Y/n/new path]: "
     local answer
-    read -r answer </dev/tty
+    read -r answer <&3
 
     case "${answer}" in
       ""|Y|y)
         CONFIRMED_PATH="${resolved}"
+        exec 3>&-
         return 0
         ;;
       n|N)
+        exec 3>&-
         info "Aborted."
         exit 0
         ;;
       *)
-        # Treat any other input as a new base path; reattach the suffix.
+        # Treat any other input as a new base path; resolve to absolute and reattach the suffix.
         local base="${answer/#\~/${HOME}}"  # expand leading ~
+        base="$(cd "${base}" 2>/dev/null && pwd || echo "${base}")"
         resolved="${base}${suffix}"
         ;;
     esac
