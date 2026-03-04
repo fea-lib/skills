@@ -162,6 +162,12 @@ When the user has not provided specific sources, use these strategies to find th
 - Follow its references to primary sources
 - Cross-check across at least 3 independent sources before treating a claim as established
 
+**If the NotebookLM plugin is active:**
+Use `notebooklm source add-research "<query>" --mode deep` as the primary discovery mechanism
+(see `references/plugins/notebooklm.md`, Section 2). The WebFetch-based strategies in this
+section serve as a fallback if the NLM research agent returns fewer than 4 sources, or if
+NotebookLM is unavailable for this session.
+
 **Secondary source approval:**
 After primary sources are analysed, compile a list of promising secondary leads and present them to the user before fetching:
 
