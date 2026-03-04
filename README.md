@@ -28,24 +28,34 @@ Resources used to establish the conventions in `AGENTS.md`:
 
 ## Scripts
 
-Install, update, and list skills using the `skill.sh` script via `curl`:
+Install, update, and list skills using the `skill.sh` script via `curl`. Dependencies: `git`, `curl` — both standard on macOS and Linux.
+
+### list
+
+Lists all skills available in the repository.
 
 ```bash
-# List all available skills
 curl -fsSL https://raw.githubusercontent.com/fea-lib/skills/main/scripts/skill.sh | bash -s list
-
-# Install a skill (defaults to ~/.agents/skills/<skill-name>)
-curl -fsSL https://raw.githubusercontent.com/fea-lib/skills/main/scripts/skill.sh | bash -s install <skill-name>
-
-# Install to a specific directory (/your/target/dir/<skill-name>)
-curl -fsSL https://raw.githubusercontent.com/fea-lib/skills/main/scripts/skill.sh | bash -s install <skill-name> --path /your/target/dir
-
-# Update an installed skill
-curl -fsSL https://raw.githubusercontent.com/fea-lib/skills/main/scripts/skill.sh | bash -s update <skill-name>
 ```
 
-**Install** copies the skill to the target directory. You will be prompted to confirm the path before anything is written.
+### install
 
-**Update** looks for the installed skill in `./.agents/skills/` then `~/.agents/skills/`, and prompts if neither is found. If any local files differ from the remote version, you are warned and can abort before anything is overwritten.
+Copies the skill to `<path>/.agents/skills/<skill-name>` (defaults to `~/.agents/skills/<skill-name>`). You will be prompted to confirm the path before anything is written.
 
-**Dependencies:** `git`, `curl` — both standard on macOS and Linux.
+```bash
+curl -fsSL https://raw.githubusercontent.com/fea-lib/skills/main/scripts/skill.sh | bash -s install <skill-name>
+```
+
+To install to a specific directory:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/fea-lib/skills/main/scripts/skill.sh | bash -s install <skill-name> --path /your/target/dir
+```
+
+### update
+
+Looks for the installed skill in `./.agents/skills/` then `~/.agents/skills/`, and prompts if neither is found. If any local files differ from the remote version, you are warned and can abort before anything is overwritten.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/fea-lib/skills/main/scripts/skill.sh | bash -s update <skill-name>
+```

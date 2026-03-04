@@ -94,7 +94,7 @@ confirm_path() {
     printf "%s: %s\n" "${verb}" "${resolved}"
     printf "Confirm? [Y/n/new path]: "
     local answer
-    read -r answer
+    read -r answer </dev/tty
 
     case "${answer}" in
       ""|Y|y)
@@ -176,12 +176,14 @@ cmd_install() {
 
   # Expand ~ manually (handles cases where the value came from a variable).
   target_dir="${target_dir/#\~/${HOME}}"
+  # Resolve to absolute path (handles relative paths like . or ./)
+  target_dir="$(cd "${target_dir}" 2>/dev/null && pwd || echo "${target_dir}")"
 
   require_git
 
   # Confirm the install path with the user.
   CONFIRMED_PATH=""
-  confirm_path "${target_dir}/${skill_name}" "Install to"
+  confirm_path "${target_dir}/${SKILLS_SUBDIR}/${skill_name}" "Install to"
   local install_dest="${CONFIRMED_PATH}"
 
   # Guard against reinstalling.
@@ -236,7 +238,7 @@ cmd_update() {
   else
     warn "Could not find '${skill_name}' in ./${SKILLS_SUBDIR}/ or ${HOME}/${SKILLS_SUBDIR}/."
     printf "Enter the path to the installed skill directory: "
-    read -r install_dest
+    read -r install_dest </dev/tty
     install_dest="${install_dest/#\~/${HOME}}"
     [[ -d "${install_dest}" ]] || die "Directory not found: ${install_dest}"
   fi
@@ -291,7 +293,7 @@ cmd_update() {
     done
     printf "Overwrite anyway? [y/N]: "
     local answer
-    read -r answer
+    read -r answer </dev/tty
     case "${answer}" in
       y|Y) ;;
       *)
