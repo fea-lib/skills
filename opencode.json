@@ -1,0 +1,29 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "compaction": {
+    "token_threshold": 60000,
+    "context_threshold": 0.45,
+    "models": {
+      "anthropic/claude-sonnet-4-5": {
+        "token_threshold": 60000,
+        "context_threshold": 0.45
+      },
+      "anthropic/claude-sonnet-4-6": {
+        "token_threshold": 60000,
+        "context_threshold": 0.45
+      },
+      "github-copilot/claude-sonnet-4-6": {
+        "token_threshold": 60000,
+        "context_threshold": 0.45
+      }
+    }
+  },
+  "mcp": {
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "enabled": true,
+      "timeout": 10000
+    }
+  }
+}
