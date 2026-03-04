@@ -166,7 +166,7 @@ Produce the research report using the template in `references/report-template.md
 Section 7):
 - **Artifact A** — NotebookLM briefing doc (already downloaded in Step 4; present it now
   if not already offered to the user)
-- **Artifact B** — Claude's structured report using our template, populated with the NLM
+- **Artifact B** — The agent's structured report using our template, populated with the NLM
   synthesis findings. The NLM briefing doc is listed as a source in Section 4 (Source
   Inventory) with type "NotebookLM output".
 
@@ -205,8 +205,8 @@ Obsidian, etc.) are consistent:
    authenticated. Must include graceful fallback instructions for when the tool is unavailable.
 2. **Sections 2–6**: One section per research workflow step (2 = discovery, 3 = analysis,
    4 = synthesis, 5 = secondary sources, 6 = gap retrospective). Each section describes what
-   the plugin does for that step and what Claude falls back to if the plugin fails.
+   the plugin does for that step and what the agent falls back to if the plugin fails.
 3. **Section 7 — Final Output**: What additional artifacts the plugin produces and how they
-   relate to Claude's structured report.
+   relate to the agent's structured report.
 4. **Section 8 — Fallback Rules**: A table of common failure modes and recovery actions.
    The session must always complete even if the plugin fails entirely.
