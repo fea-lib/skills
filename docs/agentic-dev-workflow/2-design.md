@@ -18,6 +18,7 @@ implementation phase.
 4. [Key Design Decisions](#4-key-design-decisions)
 5. [Skill Collision Prevention](#5-skill-collision-prevention)
 6. [Artifact Contracts](#6-artifact-contracts)
+7. [Testing Strategy](#7-testing-strategy)
 
 ---
 
@@ -307,6 +308,130 @@ structured YAML with formal fields adds overhead without proportional benefit.
 ## Options considered
 <what the agent has already tried or ruled out>
 ```
+
+---
+
+## 7. Testing Strategy
+
+> **Status: Out of scope for v1.**
+>
+> The testing plan below is fully designed and ready to implement. It is deferred because
+> Promptfoo requires a direct LLM API key (Anthropic or OpenAI) and no key is available
+> in the current environment. The GitHub Copilot OAuth token managed by OpenCode cannot
+> be used directly with Promptfoo without a local proxy. Tests will be added in a
+> follow-up once a direct API key is available.
+
+Skills are configuration artifacts — they cannot be unit-tested in isolation. What is
+tested is the *effect*: load the skill as the agent's system prompt, run representative
+inputs, and evaluate the outputs.
+
+```
+SKILL.md → agent context → outputs → evaluated
+```
+
+### 7.1 Scope
+
+Six of the nine skills are in scope for automated testing. Three are explicitly excluded:
+
+| Skill | Testable | Reason if excluded |
+|---|---|---|
+| `adw-idea` | Yes | — |
+| `adw-research` | Yes | — |
+| `adw-prototype` | **No** | Produces no persisted artifact |
+| `adw-prd` | Yes | — |
+| `adw-plan` | Yes | — |
+| `adw-refine` | Yes | — |
+| `adw-execution` | **No** | Operates on a real codebase; meaningful tests require a controlled codebase fixture — too expensive for v1 |
+| `adw-qa` | Yes | — |
+| `agentic-dev-workflow` | **No** | Full orchestration loop spans 8 phases; integration test cost is disproportionate for v1 |
+
+### 7.2 Tooling
+
+**Promptfoo** is the primary test runner. It is declarative (YAML, no code), tool-agnostic,
+runs locally and in CI, and supports both deterministic assertions and LLM-as-judge scoring.
+Each testable skill will include a `tests/promptfooconfig.yaml` bundled in its skill directory.
+
+**Prerequisites:**
+- Node.js ≥ 18
+- `npx promptfoo@latest` (no permanent install required)
+- A direct LLM API key: `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`
+
+Note: GitHub Copilot's OAuth token (as managed by OpenCode) cannot be used directly —
+it requires a token exchange step that is not supported natively by Promptfoo. A local
+OpenAI-compatible proxy (e.g. `copilot-gpt4-service`) could bridge this gap but adds
+operational overhead not warranted for v1.
+
+### 7.3 Test structure per skill
+
+Each skill's test suite uses two assertion layers:
+
+**Layer 1 — Deterministic** (cheap, runs first): structural checks that the output artifact
+meets its format contract — required sections present, slug format valid, no forbidden
+patterns. These catch obvious regressions without any LLM API cost.
+
+**Layer 2 — LLM-as-judge** (`llm-rubric` assertions): quality checks that require
+semantic evaluation — acceptance criteria are testable, dependency relationships are
+explicit, skip reasons are substantive rather than empty.
+
+Test cases use synthetic but realistic inputs: pre-written fixture versions of upstream
+artifacts (e.g. a fake `2-research.md` as input to `adw-prd`). This isolates each skill
+from real codebase dependencies and keeps tests fast and repeatable.
+
+Example config shape:
+
+```yaml
+# .agents/skills/adw-prd/tests/promptfooconfig.yaml
+prompts:
+  - file://../SKILL.md
+
+providers:
+  - anthropic:messages:claude-sonnet-4-20250514
+
+tests:
+  - description: "Produces all required sections"
+    vars:
+      input: |
+        [fixture content of 2-research.md]
+    assert:
+      - type: contains
+        value: "## Goal"
+      - type: contains
+        value: "## Acceptance Criteria"
+      - type: contains
+        value: "## Out of Scope"
+      - type: llm-rubric
+        value: "Acceptance criteria are specific and testable, not vague"
+        threshold: 0.7
+```
+
+Run a skill's tests:
+```bash
+npx promptfoo@latest eval --config .agents/skills/adw-prd/tests/promptfooconfig.yaml
+```
+
+### 7.4 CI integration
+
+Tests run on every PR that modifies a skill file via the `promptfoo/promptfoo-action@v2`
+GitHub Action. Promptfoo's built-in caching prevents redundant LLM calls when inputs
+haven't changed. LLM-as-judge pass threshold: **0.7** (calibrate against human judgements
+before treating as a hard gate).
+
+```yaml
+- name: Run skill evals
+  uses: promptfoo/promptfoo-action@v2
+  with:
+    config: .agents/skills/adw-prd/tests/promptfooconfig.yaml
+  env:
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+```
+
+### 7.5 What automated tests cannot verify
+
+- Whether the agent made the *right* execution or escalation decision (requires a real task)
+- Whether a skill works correctly when multiple skills are loaded simultaneously
+- End-to-end workflow correctness across all phases
+
+These gaps are addressed by manual walkthrough on a real task before each major skill version release.
 
 ---
 
