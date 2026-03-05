@@ -10,7 +10,7 @@ the user needs to use it. The agent uses this list to build the dynamic activati
 
 | Plugin | File | User-facing description | Prerequisites | Updating |
 |--------|------|------------------------|---------------|---------|
-| NotebookLM | `plugins/notebooklm.md` | Google NotebookLM — indexes all sources and answers cross-source questions via RAG; produces a briefing doc as a second output artifact | `notebooklm-py[browser]` installed; Google account | Say "update the notebooklm plugin" to sync with upstream CLI changes (see plugin Section 9) |
+| NotebookLM | `plugins/notebooklm.md` | Google NotebookLM — indexes all sources and answers cross-source questions via RAG; produces a briefing doc as a second output artifact | `pip install "notebooklm-py[browser]"` + `python3 -m playwright install chromium`; Google account | Say "update the notebooklm plugin" to sync with upstream CLI changes (see plugin Section 9) |
 
 ---
 
