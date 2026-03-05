@@ -232,10 +232,39 @@ Two deliverables:
 **Artifact A** — Already downloaded in §4.4. Present to user if not already done.
 
 **Artifact B** — Claude's structured report (`references/report-template.md`):
-- §2 Methodology: note NotebookLM was used; list notebook ID; note discovery via `source add-research` and synthesis via `ask`.
-- §3 Key Findings: draw from `ask` responses. Treat Artifact A as source `[S-NLM]`.
-- §4 Source Inventory: every source from `notebooklm source list` with quality annotations. Add NLM briefing doc as Type: "NotebookLM output".
-- §5–7: gap analysis, conflicts, next steps as normal.
+- **Frontmatter:** Add YAML frontmatter at the top of the report file with session metadata instead of a plain text footer:
+  ```yaml
+  ---
+  generated: YYYY-MM-DD
+  research_depth: "primary + approved secondary (N additional sources)"
+  notebooklm_notebook: https://notebooklm.google.com/notebook/<notebook-id>
+  artifact_briefing_doc: notebooklm-briefing.md
+  ---
+  ```
+- **§2 Methodology:** note NotebookLM was used; reference the notebook via its URL (same as frontmatter); note discovery via `source add-research` and synthesis via `ask`.
+- **§3 Artefacts** _(insert between §2 Methodology and §3 Key Findings, shifting subsequent sections by one)_: list all NLM-generated deliverables produced in §8. Link each by its NLM artifact URL rather than a local file path — this avoids committing binary files (`.mp4`, `.pdf`, `.png`) to git. To get the artifact URL:
+  ```bash
+  notebooklm artifact list   # find the artifact ID
+  # URL pattern: https://notebooklm.google.com/notebook/<notebook-id>?artifactId=<artifact-id>
+  ```
+  Example table:
+  ```markdown
+  | Artefact | Description |
+  |----------|-------------|
+  | [Briefing doc](notebooklm-briefing.md) | NLM-generated briefing doc; source [S-NLM] |
+  | [Video title](https://notebooklm.google.com/notebook/<id>?artifactId=<id>) | Short explainer (~5 min) |
+  | [Slide deck title](https://notebooklm.google.com/notebook/<id>?artifactId=<id>) | Presentation |
+  | [Infographic title](https://notebooklm.google.com/notebook/<id>?artifactId=<id>) | Visual summary |
+  ```
+  Omit this section if no deliverables were generated in §8.
+- **§4 Key Findings** _(was §3)_: draw from `ask` responses. Treat Artifact A as source `[S-NLM]`.
+- **§5 Source Inventory** _(was §4)_: every source from `notebooklm source list` with quality annotations. Add NLM briefing doc as Type: "NotebookLM output".
+- **§6–8** _(were §5–7)_: gap analysis, conflicts, next steps as normal.
+
+Replace the plain text footer with a single line pointing to the frontmatter:
+```
+*Report generated: YYYY-MM-DD — see frontmatter for full metadata.*
+```
 
 Offer to save both files when done.
 
