@@ -50,9 +50,8 @@ Out of scope:
 - **Search strategy:** NLM deep research agent queried ~43 web sources; direct arXiv URL fetching for key papers; five RAG synthesis queries against the full corpus; seven gap-retrospective queries; two topic-specific queries on shareability formats and real-world evidence
 - **Depth:** Primary sources + approved secondary leads (6 additional sources approved mid-session)
 - **Secondary sources approved by user:** Yes — SkillFortify paper (arXiv:2603.00195), GitHub Agentic Workflows docs, Reddit practitioner thread, ACP Agent Registry, Agent Skills Directory (skills.sh), OpenAI Routines & Handoffs doc
-- **Tools used:** NotebookLM RAG (notebook ID `d6aebae5-247f-49f1-a2ec-f18b7b53ff5b`), WebFetch, Read, Bash (NLM CLI), five saved synthesis notes + session history note
-- **NotebookLM briefing doc (Artifact A):** `notebooklm-briefing-agentic-dev-workflow.md` [S-NLM]
-- **Concept map:** `mindmap-agentic-dev-workflow.json`
+- **Tools used:** NotebookLM RAG (notebook ID [`d6aebae5-247f-49f1-a2ec-f18b7b53ff5b`](https://notebooklm.google.com/notebook/d6aebae5-247f-49f1-a2ec-f18b7b53ff5b)), WebFetch, Read, Bash (NLM CLI), five saved synthesis notes + session history note
+- **NotebookLM briefing doc (Artifact A):** `notebooklm-briefing.md` [S-NLM]
 
 ---
 
@@ -62,9 +61,9 @@ Generated from the NotebookLM notebook as part of this research session.
 
 | File | Description |
 |------|-------------|
-| [`notebooklm-briefing.md`](notebooklm-briefing.md) | NLM-generated briefing doc; used as source `[S-NLM]` throughout this report |
-| [`infographic.png`](infographic.png) | Visual summary: Enterprise Agentic AI 2026 Overview |
-| [`slide-deck.pdf`](slide-deck.pdf) | Presentation: The Agentic Enterprise Playbook |
+| [`notebooklm-briefing.md`](sources/notebooklm-briefing.md) | NLM-generated briefing doc; used as source `[S-NLM]` throughout this report |
+| [`infographic.png`](sources/infographic.png) | Visual summary: Enterprise Agentic AI 2026 Overview |
+| [`slide-deck.pdf`](sources/slide-deck.pdf) | Presentation: The Agentic Enterprise Playbook |
 | [Effective Agentic Workflows](https://notebooklm.google.com/notebook/d6aebae5-247f-49f1-a2ec-f18b7b53ff5b?artifactId=07e7f166-e294-4810-a59e-c4cdbd7b50d9) | Short explainer: Effective Agentic Workflows (~5 min) |
 
 ---
