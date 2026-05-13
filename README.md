@@ -15,6 +15,7 @@ A collection of reusable AI agent skills — modular packages that extend agent 
 | [adw-qa](.agents/skills/adw-qa/SKILL.md) | Phase 8 of the agentic-dev-workflow: produces a human-in-the-loop verification checklist and rollback plan for the completed implementation. |
 | [astro-starlight-charts](.agents/skills/astro-starlight-charts/SKILL.md) | Conventions, recipes, and anti-patterns for building static SVG chart components with Astro and D3. |
 | [research](.agents/skills/research/SKILL.md) | Structured research support: finding and analysing resources, answering questions from evidence, and producing a documented research report. |
+| [multi-model-research](.agents/skills/multi-model-research/SKILL.md) | Orchestrates parallel multi-model research: multiple models independently research, anonymously compare, and iteratively merge findings into a single high-quality final document. |
 
 ## Structure
 
