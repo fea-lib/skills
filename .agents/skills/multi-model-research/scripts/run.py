@@ -21,6 +21,7 @@ import argparse
 import json
 import os
 import re
+import shutil
 import sys
 import textwrap
 from pathlib import Path
@@ -37,6 +38,31 @@ DEFAULT_CRITERIA_PATH = SKILL_DIR / "references" / "criteria.md"
 CONFIG_PATH = SKILL_DIR / "config.yaml"
 
 PERMISSION_ENV = 'OPENCODE_PERMISSION=\'{"read":"allow","write":"allow","glob":"allow","grep":"allow"}\''
+SESSION_CWD = Path.cwd()
+
+
+def slugify_topic(topic: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", topic.lower()).strip("-")
+    return slug or "research"
+
+
+def resolve_user_path(path_str: str | None, base_dir: Path | None = None) -> Path | None:
+    if path_str is None:
+        return None
+    path = Path(path_str).expanduser()
+    root = base_dir or SESSION_CWD
+    return path if path.is_absolute() else (root / path)
+
+
+def resolve_workspace_dir(workspace_dir_arg: str | None) -> Path:
+    return resolve_user_path(workspace_dir_arg) or SESSION_CWD
+
+
+def resolve_out_dir(topic: str, out_dir_arg: str | None, workspace_dir_arg: str | None) -> Path:
+    workspace_dir = resolve_workspace_dir(workspace_dir_arg)
+    if out_dir_arg:
+        return resolve_user_path(out_dir_arg, workspace_dir)
+    return workspace_dir / "research" / slugify_topic(topic)
 
 
 # ---------------------------------------------------------------------------
@@ -313,7 +339,8 @@ def cmd_init(args):
     Initialise a research run. Writes _manifest.json, copies _criteria.md,
     and emits Round 1 Step-A commands.
     """
-    out_dir = Path(args.out_dir)
+    workspace_dir = resolve_workspace_dir(args.workspace_dir)
+    out_dir = resolve_out_dir(args.topic, args.out_dir, args.workspace_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     models = [m.strip() for m in args.models.split(",") if m.strip()]
@@ -327,20 +354,23 @@ def cmd_init(args):
     manifest_path.write_text(json.dumps(tokens, indent=2))
 
     # Copy criteria
-    criteria_src = Path(args.criteria) if args.criteria else DEFAULT_CRITERIA_PATH
+    criteria_src = resolve_user_path(args.criteria, workspace_dir) if args.criteria else DEFAULT_CRITERIA_PATH
     criteria_dst = out_dir / "_criteria.md"
     criteria_dst.write_text(criteria_src.read_text())
+
+    output_file = resolve_user_path(args.output_file, workspace_dir)
 
     # Write state file
     state = {
         "topic": args.topic,
+        "workspace_dir": str(workspace_dir),
         "out_dir": str(out_dir),
         "depth": args.depth,
         "models": models,
         "tokens": tokens,
         "audit_model": args.audit_model,
         "debug": args.debug,
-        "output_file": args.output_file,
+        "output_file": str(output_file) if output_file else None,
         "current_round": 1,
     }
     (out_dir / "_state.json").write_text(json.dumps(state, indent=2))
@@ -416,6 +446,7 @@ def cmd_deliver(args):
     """
     out_dir = Path(args.out_dir)
     state = json.loads((out_dir / "_state.json").read_text())
+    _write_final_output(state)
     _write_summary(state)
     _emit_cleanup(state)
 
@@ -598,6 +629,20 @@ def _write_summary(state: dict):
     print(f"_summary.md written to {summary_path}")
 
 
+def _write_final_output(state: dict):
+    out_dir = Path(state["out_dir"])
+    draft_file = out_dir / "_final-draft.md"
+    output_file = state.get("output_file")
+
+    if not output_file:
+        return
+
+    destination = Path(output_file)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(draft_file, destination)
+    print(f"Final output written to {destination}")
+
+
 def _emit_cleanup(state: dict):
     out_dir = Path(state["out_dir"])
     output_file = state.get("output_file")
@@ -605,7 +650,7 @@ def _emit_cleanup(state: dict):
 
     if output_file:
         print(f"\n## Deliver\n")
-        print(f"Copy `{out_dir}/_final-draft.md` to `{output_file}`.\n")
+        print(f"Final document saved to `{output_file}`.\n")
 
     if debug:
         print("**--debug is set — all intermediary files kept.**\n")
@@ -648,7 +693,9 @@ def main():
     # init: start a new run
     p_init = sub.add_parser("init", help="Initialise a research run and emit Round 1 commands")
     p_init.add_argument("--topic", required=True)
-    p_init.add_argument("--out-dir", required=True)
+    p_init.add_argument("--out-dir", default=None)
+    p_init.add_argument("--workspace-dir", default=None,
+                        help="Base directory for resolving default/relative output paths")
     p_init.add_argument("--depth", type=int, default=2)
     p_init.add_argument("--models", required=True, help="Comma-separated model IDs (≥2)")
     p_init.add_argument("--criteria", default=None)

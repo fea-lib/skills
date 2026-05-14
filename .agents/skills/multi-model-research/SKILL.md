@@ -3,8 +3,10 @@ name: multi-model-research
 description: >
   Run the same research task across multiple models in parallel, compare their
   outputs anonymously, and synthesise one final report. Use when the user asks
-  for multi-model research, wants multiple models to cross-check each other, or
-  wants a result less shaped by one model's blind spots.
+  for multi-model research, wants multiple models to cross-check each other,
+  wants a result less shaped by one model's blind spots, or invokes this skill
+  with configuration intents such as `--config`, "configure default models",
+  "set research models", or "update the multi-model defaults".
 ---
 
 # Multi-Model Research
@@ -29,6 +31,8 @@ If fewer than 2 models are returned, ask the user to select models manually befo
 ## Configuration (--config flag)
 
 When the user invokes the skill with `--config`, run the configuration flow instead of a research task:
+
+Do not ask for a research topic. Do not inspect the existing `config.yaml` first and stop there. Enter the model-selection flow immediately.
 
 **1. Fetch all available models:**
 
@@ -61,12 +65,19 @@ The config is stored in `config.yaml` inside the skill directory. Delete or edit
 ```bash
 python scripts/run.py init \
   --topic "<topic>" \
-  --out-dir "<path>" \
+  --out-dir "<absolute-path>" \
+  --output-file "<absolute-final-file-path>" \
   --models "<model-a>,<model-b>" \
-  [--depth N] [--criteria <path>] [--audit-model <model>] [--output-file <path>] [--debug]
+  [--depth N] [--criteria <path>] [--audit-model <model>] [--debug]
 ```
 
-`--out-dir` default: derive a kebab-case slug from the topic → `./research/<slug>/`
+If the user did not provide a target directory, do not rely on the script's process cwd or `$(pwd)`. Instead, derive an explicit absolute output path from the current opencode session workspace root and pass it via `--out-dir`.
+
+Default path when the user gives no target directory: `<opencode workspace root>/research/<topic-slug>/`
+
+If the user did not provide a target filename, the root agent should declare one and pass it via `--output-file`. Default: `<out-dir>/final.md`.
+
+Use the workspace root already available in the session context, not the installed skill directory and not a temp execution directory.
 
 **3. Execute each phase** as the script emits commands, then call back:
 
