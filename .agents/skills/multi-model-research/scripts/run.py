@@ -25,11 +25,60 @@ import sys
 import textwrap
 from pathlib import Path
 
+try:
+    import yaml
+    _YAML_AVAILABLE = True
+except ImportError:
+    _YAML_AVAILABLE = False
+
 SKILL_DIR = Path(__file__).resolve().parent.parent
 PROMPTS_PATH = SKILL_DIR / "references" / "prompts.md"
 DEFAULT_CRITERIA_PATH = SKILL_DIR / "references" / "criteria.md"
+CONFIG_PATH = SKILL_DIR / "config.yaml"
 
 PERMISSION_ENV = 'OPENCODE_PERMISSION=\'{"read":"allow","write":"allow","glob":"allow","grep":"allow"}\''
+
+
+# ---------------------------------------------------------------------------
+# Config helpers
+# ---------------------------------------------------------------------------
+
+def _read_config() -> list[str]:
+    """Return models from config.yaml, or [] if absent/empty."""
+    if not CONFIG_PATH.exists():
+        return []
+    if _YAML_AVAILABLE:
+        data = yaml.safe_load(CONFIG_PATH.read_text()) or {}
+    else:
+        # Minimal YAML parser: only handles the 'models: [- item]' shape we write.
+        data = {}
+        key = None
+        items = []
+        for line in CONFIG_PATH.read_text().splitlines():
+            m = re.match(r'^(\w+):', line)
+            if m:
+                key = m.group(1)
+            elif key == "models" and re.match(r'^\s+-\s+', line):
+                items.append(re.sub(r'^\s+-\s+', '', line).strip())
+        if items:
+            data = {"models": items}
+    return [m for m in data.get("models", []) if m]
+
+
+def _write_config(models: list[str]) -> None:
+    """Write models list to config.yaml."""
+    lines = ["models:"] + [f"  - {m}" for m in models]
+    CONFIG_PATH.write_text("\n".join(lines) + "\n")
+
+
+def _parse_all_models(models_output: str) -> list[str]:
+    """Return every model ID found in `opencode models` output."""
+    result = []
+    for line in models_output.strip().splitlines():
+        token = line.split()[-1] if line.split() else ""
+        if token:
+            result.append(token)
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -207,7 +256,13 @@ def emit_subagent_cmd(model: str, prompt_file: Path, input_files: list[Path], ou
 # ---------------------------------------------------------------------------
 
 def cmd_list_defaults(args):
-    """Read opencode models output from stdin, print the two default model IDs."""
+    """Read opencode models output from stdin, print the two default model IDs.
+    If config.yaml exists with a models list, use that instead of auto-selecting."""
+    configured = _read_config()
+    if configured:
+        print(",".join(configured))
+        return
+
     models_output = sys.stdin.read()
     selected = select_default_models(models_output)
     if len(selected) < 2:
@@ -217,6 +272,40 @@ def cmd_list_defaults(args):
             print(" ", line, file=sys.stderr)
         sys.exit(1)
     print(",".join(selected))
+
+
+def cmd_list_models(args):
+    """Read opencode models output from stdin, print all model IDs as JSON array."""
+    models_output = sys.stdin.read()
+    models = _parse_all_models(models_output)
+    print(json.dumps(models))
+
+
+def cmd_config(args):
+    """Read or write the persistent model config."""
+    if args.show:
+        configured = _read_config()
+        if configured:
+            print(f"Configured models ({len(configured)}):")
+            for m in configured:
+                print(f"  - {m}")
+        else:
+            print("No config.yaml found — skill will auto-select models.")
+        return
+
+    if args.set:
+        models = [m.strip() for m in args.set.split(",") if m.strip()]
+        if not models:
+            print("ERROR: No models provided.", file=sys.stderr)
+            sys.exit(1)
+        _write_config(models)
+        print(f"Saved {len(models)} model(s) to {CONFIG_PATH}:")
+        for m in models:
+            print(f"  - {m}")
+        return
+
+    print("ERROR: Provide --set <models> or --show.", file=sys.stderr)
+    sys.exit(1)
 
 
 def cmd_init(args):
@@ -546,6 +635,16 @@ def main():
     # list-defaults: read opencode models from stdin, print default model IDs
     sub.add_parser("list-defaults", help="Pick default models from `opencode models` output on stdin")
 
+    # list-models: read opencode models from stdin, print all model IDs as JSON
+    sub.add_parser("list-models", help="List all available models from `opencode models` output on stdin as JSON")
+
+    # config: read/write persistent model config
+    p_cfg = sub.add_parser("config", help="Read or write the persistent model config (config.yaml)")
+    p_cfg.add_argument("--set", metavar="MODELS", default=None,
+                       help="Comma-separated model IDs to persist as defaults")
+    p_cfg.add_argument("--show", action="store_true",
+                       help="Print the current config and exit")
+
     # init: start a new run
     p_init = sub.add_parser("init", help="Initialise a research run and emit Round 1 commands")
     p_init.add_argument("--topic", required=True)
@@ -574,6 +673,10 @@ def main():
 
     if args.command == "list-defaults":
         cmd_list_defaults(args)
+    elif args.command == "list-models":
+        cmd_list_models(args)
+    elif args.command == "config":
+        cmd_config(args)
     elif args.command == "init":
         cmd_init(args)
     elif args.command == "score-round":

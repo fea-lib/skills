@@ -21,7 +21,40 @@ remaining variants.
 opencode models | python scripts/run.py list-defaults
 ```
 
+`list-defaults` checks `config.yaml` first. If configured models are found, those are used.
+If not, it falls back to auto-selecting the highest-ranked Claude and GPT models.
+
 If fewer than 2 models are returned, ask the user to select models manually before continuing.
+
+## Configuration (--config flag)
+
+When the user invokes the skill with `--config`, run the configuration flow instead of a research task:
+
+**1. Fetch all available models:**
+
+```bash
+opencode models | python scripts/run.py list-models
+```
+
+This prints a JSON array of all available model IDs.
+
+**2. Present the list as a multi-select to the user.** Let them pick the models they want to use as defaults. No minimum enforced here — if fewer than 2 are selected, `init` will fail with an existing error message.
+
+**3. Persist the selection:**
+
+```bash
+python scripts/run.py config --set "<model-a>,<model-b>,..."
+```
+
+Confirm to the user how many models were saved and to which file.
+
+To inspect the current config at any time:
+
+```bash
+python scripts/run.py config --show
+```
+
+The config is stored in `config.yaml` inside the skill directory. Delete or edit it manually to reset or adjust. When no `config.yaml` exists, the skill auto-selects models as before.
 
 **2. Initialise the run** (emits Round 1 subagent commands):
 
