@@ -46,26 +46,19 @@ Recommended layout:
       implementation-plan.md
       phase-0-implementation-addendum.md
       roles/
-      templates/
-  skills/
-    game-studio/
-      SKILL.md
-  src/
-    game-studio/
-      cli/
-      core/
-      prompts/
-      roles/
-      state/
-      validation/
-  tests/
-    fixtures/
-      valid-project/
-      invalid-project-missing-files/
-      invalid-project-invalid-status/
-      invalid-project-invalid-transition/
-    smoke/
-    unit/
+  .agents/
+    skills/
+      game-studio/
+        SKILL.md
+        references/
+          roles.md
+          workflow.md
+          templates/
+        scripts/
+          game-studio
+          game_studio/
+            src/
+            tests/
 ```
 
 ### Target Workspace
@@ -115,14 +108,14 @@ Rules:
 
 The implementation brief file shape is fixed as follows:
 
-1. The reusable template remains `docs/game-studio/templates/08-implementation-brief.md` inside the skill source repository.
+1. The reusable template remains `.agents/skills/game-studio/references/templates/08-implementation-brief.md` inside the skill source repository.
 2. Generated canonical implementation briefs live under `08-implementation-briefs/` in the target project.
 3. Generated file names must use `IMP-XXX-<slice>.md` where `XXX` is a zero-padded numeric sequence.
 
 Example:
 
 ```text
-docs/game-studio/templates/08-implementation-brief.md
+.agents/skills/game-studio/references/templates/08-implementation-brief.md
 <target-docs-dir>/game-studio/projects/<project-slug>/08-implementation-briefs/IMP-001-core-loop-prototype.md
 ```
 

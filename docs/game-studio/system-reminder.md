@@ -179,23 +179,29 @@ Skill source repository:
         engineering-lead.md
         art-director.md
         orchestrator.md
-      templates/
-        00-current-state.md
-        00-risk-register.md
-        01-idea-brief.md
-        02-vision-brief.md
-        03-concept-stress-test.md
-        04-design-package.md
-        05-prototype-plan.md
-        06-production-plan.md
-        07-change-decisions.md
-        08-implementation-brief.md
-  skills/
-    game-studio/
-      SKILL.md
-  src/
-    game-studio/
-      ...
+  .agents/
+    skills/
+      game-studio/
+        SKILL.md
+        references/
+          roles.md
+          workflow.md
+          templates/
+            00-current-state.md
+            00-risk-register.md
+            01-idea-brief.md
+            02-vision-brief.md
+            03-concept-stress-test.md
+            04-design-package.md
+            05-prototype-plan.md
+            06-production-plan.md
+            07-change-decisions.md
+            08-implementation-brief.md
+        scripts/
+          game-studio
+          game_studio/
+            src/
+            tests/
 ```
 
 Target workspace:

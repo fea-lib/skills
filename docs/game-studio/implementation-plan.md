@@ -193,7 +193,7 @@ Every pause must include:
 
 **Deliverables:**
 
-1. Implementation brief creation flow — generates `08-implementation-briefs/IMP-XXX-*.md` in the target project from the `templates/08-implementation-brief.md` source template.
+1. Implementation brief creation flow — generates `08-implementation-briefs/IMP-XXX-*.md` in the target project from the `.agents/skills/game-studio/references/templates/08-implementation-brief.md` source template.
 2. Execution mode — switches to bounded implementation behaviour when a brief is approved.
 3. Pre-execution checklist — verifies brief approval, acceptance criteria, and test expectations exist.
 4. Code generation within brief — produces code matching the brief, no more.

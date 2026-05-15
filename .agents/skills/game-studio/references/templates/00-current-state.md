@@ -1,6 +1,6 @@
 ---
 title: Current State
-status: active
+status: draft
 project: <project-slug>
 updated_at: <YYYY-MM-DD>
 ---

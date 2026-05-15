@@ -1,6 +1,6 @@
 ---
 title: Risk Register
-status: active
+status: draft
 project: <project-slug>
 updated_at: <YYYY-MM-DD>
 ---

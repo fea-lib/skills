@@ -16,6 +16,7 @@ A collection of reusable AI agent skills — modular packages that extend agent 
 | [astro-starlight-charts](.agents/skills/astro-starlight-charts/SKILL.md) | Conventions, recipes, and anti-patterns for building static SVG chart components with Astro and D3. |
 | ~~research~~ | Deprecated. Use [multi-model-research](.agents/skills/multi-model-research/SKILL.md) as the replacement for structured research support and documented research reports. |
 | [multi-model-research](.agents/skills/multi-model-research/SKILL.md) | Orchestrates parallel multi-model research: multiple models independently research, anonymously compare, and iteratively merge findings into a single high-quality final document. |
+| [game-studio](.agents/skills/game-studio/SKILL.md) | An LLM agent game studio that guides one active indie game project from idea to implementation through a fixed, phase-gated workflow with specialist role lenses and a deterministic CLI. |
 
 ## Structure
 
