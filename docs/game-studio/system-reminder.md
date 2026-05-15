@@ -13,6 +13,8 @@ updated_at: 2026-05-15
 
 Define the execution-ready specification for a workflow-centric, role-evaluated indie game studio assistant.
 
+Machine-facing implementation details for the skill plus CLI build are further specified in `phase-0-implementation-addendum.md`. If this document conflicts with that addendum on runtime behavior, CLI contract, serialized status values, or project layout rules, the addendum wins.
+
 This system must:
 
 1. Help one active game project at a time move from idea to execution-ready slices.
@@ -146,8 +148,8 @@ Approval is required at minimum for:
 Allowed outcomes:
 
 1. `approved`
-2. `approved with conditions`
-3. `rework required`
+2. `approved-with-conditions`
+3. `rework-required`
 4. `rejected`
 5. `parked`
 
@@ -157,12 +159,19 @@ Allowed outcomes:
 
 The human provides the repository root and target documentation directory at startup.
 
+For the skill source repository versus target workspace split, and for canonical generated project paths, follow `phase-0-implementation-addendum.md`.
+
 Recommended structure:
 
+Skill source repository:
+
 ```text
-<docs-dir>/
-  tools/
+<skills-repo>/
+  docs/
     game-studio/
+      system-reminder.md
+      implementation-plan.md
+      phase-0-implementation-addendum.md
       roles/
         creative-product-lead.md
         producer.md
@@ -170,28 +179,50 @@ Recommended structure:
         engineering-lead.md
         art-director.md
         orchestrator.md
-      projects/
-        <project-slug>/
-          00-current-state.md
-          00-risk-register.md
-          01-idea-brief.md
-          02-vision-brief.md
-          03-concept-stress-test.md
-          04-design-package.md
-          05-prototype-plan.md
-          06-production-plan.md
-          07-change-decisions.md
-          08-implementation-briefs/
-            IMP-001-<slice>.md
+      templates/
+        00-current-state.md
+        00-risk-register.md
+        01-idea-brief.md
+        02-vision-brief.md
+        03-concept-stress-test.md
+        04-design-package.md
+        05-prototype-plan.md
+        06-production-plan.md
+        07-change-decisions.md
+        08-implementation-brief.md
+  skills/
+    game-studio/
+      SKILL.md
+  src/
+    game-studio/
+      ...
+```
+
+Target workspace:
+
+```text
+<target-repo>/<target-docs-dir>/game-studio/projects/<project-slug>/
+  00-current-state.md
+  00-risk-register.md
+  01-idea-brief.md
+  02-vision-brief.md
+  03-concept-stress-test.md
+  04-design-package.md
+  05-prototype-plan.md
+  06-production-plan.md
+  07-change-decisions.md
+  08-implementation-briefs/
+    IMP-001-<slice>.md
 ```
 
 Conventions:
 
 1. One project folder per game.
-2. Role contracts are global and reusable.
+2. Role contracts and templates are global and reusable inputs.
 3. Numbered artefacts represent workflow order, not role ownership.
-4. Revisions happen in place.
-5. `draft` and `approved` are document states, not separate files.
+4. Generated project artefacts live in the target workspace, not the skill source repository.
+5. Revisions happen in place.
+6. `draft` and `approved` are document states, not separate files.
 
 ## Canonical State Files
 

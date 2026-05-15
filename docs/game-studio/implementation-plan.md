@@ -11,6 +11,8 @@ updated_at: 2026-05-15
 
 Define the ordered build plan for the LLM Agent Game Studio. Each phase produces a testable, usable increment. Later phases build on earlier ones without requiring rework.
 
+Machine-facing implementation contracts for the skill plus CLI build are locked in `phase-0-implementation-addendum.md`. This plan defines build sequencing and expected capabilities; the addendum defines the exact CLI, runtime, persistence, and validation shape.
+
 ## Pre-conditions
 
 Before any build work starts, the human must confirm:
@@ -20,6 +22,8 @@ Before any build work starts, the human must confirm:
 3. Whether the studio will live as an OpenCode skill, a standalone agent system, or both.
 4. Preferred LLM provider and model for the orchestrator.
 5. Preferred LLM provider and model for specialist roles (can be same as orchestrator in v1).
+
+The implementation may proceed only after the contracts in `phase-0-implementation-addendum.md` are treated as locked.
 
 ---
 
@@ -189,7 +193,7 @@ Every pause must include:
 
 **Deliverables:**
 
-1. Implementation brief creation flow — generates `IMP-XXX-*.md` from `08-implementation-brief.md` template.
+1. Implementation brief creation flow — generates `08-implementation-briefs/IMP-XXX-*.md` in the target project from the `templates/08-implementation-brief.md` source template.
 2. Execution mode — switches to bounded implementation behaviour when a brief is approved.
 3. Pre-execution checklist — verifies brief approval, acceptance criteria, and test expectations exist.
 4. Code generation within brief — produces code matching the brief, no more.

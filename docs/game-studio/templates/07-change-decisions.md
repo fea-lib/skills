@@ -28,7 +28,7 @@ This document prevents silent drift. If a decision is not recorded here, it did 
 
 **Date:**
 **Requested by:** human | orchestrator | role
-**Status:** `approved` | `approved-with-conditions` | `rejected` | `deferred`
+**Status:** `approved` | `approved-with-conditions` | `rejected` | `parked`
 
 #### Requested Change
 <!-- What is being changed? -->
@@ -67,7 +67,7 @@ This document prevents silent drift. If a decision is not recorded here, it did 
 <!-- Consolidated view of all role inputs. -->
 
 #### Recommendation
-Recommendation: `approve | approve-with-conditions | reject | defer`
+Recommendation: `approve | approve-with-conditions | reject | park`
 Reasoning:
 
 #### Alternatives
