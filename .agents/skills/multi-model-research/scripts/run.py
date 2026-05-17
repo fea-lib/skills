@@ -19,11 +19,10 @@ Usage:
 
 import argparse
 import json
-import os
 import re
 import shutil
+import subprocess
 import sys
-import textwrap
 from pathlib import Path
 
 try:
@@ -39,6 +38,7 @@ CONFIG_PATH = SKILL_DIR / "config.yaml"
 
 PERMISSION_ENV = 'OPENCODE_PERMISSION=\'{"read":"allow","write":"allow","glob":"allow","grep":"allow"}\''
 SESSION_CWD = Path.cwd()
+DEFAULT_TIMEOUT_MS = 600000
 
 
 def slugify_topic(topic: str) -> str:
@@ -266,14 +266,21 @@ def compute_winner(
 # Command emission
 # ---------------------------------------------------------------------------
 
-def emit_subagent_cmd(model: str, prompt_file: Path, input_files: list[Path], output_file: Path) -> str:
+def emit_subagent_cmd(
+    model: str,
+    prompt_file: Path,
+    input_files: list[Path],
+    output_file: Path,
+    timeout_ms: int,
+) -> str:
     """Produce the opencode run bash string for the orchestrating agent to execute."""
     files = " ".join(f'-f "{p}"' for p in [prompt_file] + input_files)
     return (
         f'{PERMISSION_ENV} \\\n'
         f'  opencode run -m {model} \\\n'
+        f'    --timeout {timeout_ms} \\\n'
         f'    {files} \\\n'
-        f'    "Write your output to {output_file}"'
+        f'    -- "Write your output to {output_file}"'
     )
 
 
@@ -347,6 +354,9 @@ def cmd_init(args):
     if len(models) < 2:
         print("ERROR: At least 2 models are required.", file=sys.stderr)
         sys.exit(1)
+    if args.timeout <= 0:
+        print("ERROR: --timeout must be a positive integer in milliseconds.", file=sys.stderr)
+        sys.exit(1)
 
     # Assign tokens
     tokens = {f"v{i+1}": model for i, model in enumerate(models)}
@@ -366,6 +376,7 @@ def cmd_init(args):
         "workspace_dir": str(workspace_dir),
         "out_dir": str(out_dir),
         "depth": args.depth,
+        "timeout_ms": args.timeout,
         "models": models,
         "tokens": tokens,
         "audit_model": args.audit_model,
@@ -392,18 +403,25 @@ def cmd_score_round(args):
     weights = load_weights(out_dir / "_criteria.md")
     tokens = state["tokens"]  # {token: model}
 
-    compare_files = list(out_dir.glob(f"r{round_num}-compare.*.md"))
-    if not compare_files:
-        print(f"ERROR: No compare files found for round {round_num}.", file=sys.stderr)
-        sys.exit(1)
+    expected_compare = {
+        token: out_dir / f"r{round_num}-compare.{token}.md"
+        for token in tokens
+    }
+    for token, compare_file in expected_compare.items():
+        if not compare_file.exists():
+            rerun_cmd = _build_compare_command(state, round_num, token)
+            print(f"RERUN_REQUIRED: {compare_file.name} is missing")
+            print(f"RERUN_COMMAND: {rerun_cmd}")
+            return
 
     score_matrix = {}
     excluded = []
-    for cf in compare_files:
-        token = cf.stem.split(".")[-1]
+    for token, cf in expected_compare.items():
         scores = extract_scores(cf)
         if scores is None:
-            print(f"RERUN_REQUIRED: {cf.name}")
+            rerun_cmd = _build_compare_command(state, round_num, token)
+            print(f"RERUN_REQUIRED: {cf.name} has a missing or malformed score block")
+            print(f"RERUN_COMMAND: {rerun_cmd}")
             return  # Caller reruns this comparator, then calls score-round again
         score_matrix[token] = scores
 
@@ -451,6 +469,74 @@ def cmd_deliver(args):
     _emit_cleanup(state)
 
 
+def cmd_doctor(args):
+    """Run environment checks for known risk factors and dependencies."""
+
+    def check_command(command: list[str], timeout_sec: int = 10) -> tuple[bool, str]:
+        try:
+            result = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                timeout=timeout_sec,
+                check=False,
+            )
+        except FileNotFoundError:
+            return False, "not installed"
+        except Exception as exc:
+            return False, f"error: {exc}"
+
+        output = (result.stdout or result.stderr).strip()
+        if result.returncode == 0:
+            return True, output or "ok"
+        return False, output or f"exited with code {result.returncode}"
+
+    print("# multi-model-research doctor")
+    print()
+
+    bun_ok, bun_msg = check_command(["bun", "--version"])
+    if bun_ok:
+        print(f"[OK] bun: {bun_msg}")
+    else:
+        print(f"[WARN] bun: {bun_msg}")
+
+    playwright_ok, playwright_msg = check_command(["bunx", "playwright", "--version"])
+    if playwright_ok:
+        print(f"[OK] playwright: {playwright_msg}")
+    else:
+        print(f"[WARN] playwright: {playwright_msg}")
+
+    avx_supported = False
+    avx_source = ""
+
+    if sys.platform == "darwin":
+        ok1, features = check_command(["sysctl", "-n", "machdep.cpu.features"])
+        ok2, leaf7 = check_command(["sysctl", "-n", "machdep.cpu.leaf7_features"])
+        feature_text = " ".join([features if ok1 else "", leaf7 if ok2 else ""]).upper()
+        avx_supported = "AVX1.0" in feature_text or "AVX2.0" in feature_text or " AVX " in f" {feature_text} "
+        avx_source = "sysctl"
+    elif Path("/proc/cpuinfo").exists():
+        try:
+            cpuinfo = Path("/proc/cpuinfo").read_text().upper()
+            avx_supported = " AVX " in f" {cpuinfo} " or " AVX2 " in f" {cpuinfo} "
+            avx_source = "/proc/cpuinfo"
+        except Exception as exc:
+            avx_source = f"/proc/cpuinfo read failed: {exc}"
+    else:
+        avx_source = "platform unsupported for AVX probe"
+
+    if avx_supported:
+        print(f"[OK] avx: detected via {avx_source}")
+    else:
+        print(f"[WARN] avx: not detected via {avx_source}")
+        print("       AVX-related runtime failures may occur on this environment.")
+
+    if bun_ok and playwright_ok and avx_supported:
+        print("\nDoctor result: PASS")
+    else:
+        print("\nDoctor result: WARN")
+
+
 # ---------------------------------------------------------------------------
 # Internal emitters
 # ---------------------------------------------------------------------------
@@ -460,6 +546,7 @@ def _emit_round(state: dict, round_num: int):
     tokens = state["tokens"]  # {token: model}
     topic = state["topic"]
     depth = state["depth"]
+    timeout_ms = state.get("timeout_ms", DEFAULT_TIMEOUT_MS)
 
     print(f"\n# === Round {round_num} of {depth} ===\n")
 
@@ -485,7 +572,7 @@ def _emit_round(state: dict, round_num: int):
         }
         prompt_content = render_prompt(section, placeholders)
         prompt_file = write_prompt(out_dir, f"_prompt-r{round_num}a-{token}.md", prompt_content)
-        cmd = emit_subagent_cmd(model, prompt_file, prior_files, output_file)
+        cmd = emit_subagent_cmd(model, prompt_file, prior_files, output_file, timeout_ms)
         print(f"```bash\n# {token} ({model})\n{cmd}\n```\n")
 
     # --- Step B ---
@@ -511,6 +598,7 @@ def _emit_round(state: dict, round_num: int):
             model, prompt_file,
             [out_dir / "_criteria.md"] + produce_files,
             output_file,
+            timeout_ms,
         )
         print(f"```bash\n# {token} ({model})\n{cmd}\n```\n")
 
@@ -523,6 +611,7 @@ def _emit_final_merge(state: dict, winner_token: str, winner_model: str):
     depth = state["depth"]
     topic = state["topic"]
     tokens = state["tokens"]
+    timeout_ms = state.get("timeout_ms", DEFAULT_TIMEOUT_MS)
 
     produce_files = list(out_dir.glob(f"r{depth}-produce.*.md"))
     compare_files = list(out_dir.glob(f"r{depth}-compare.*.md"))
@@ -542,6 +631,7 @@ def _emit_final_merge(state: dict, winner_token: str, winner_model: str):
         winner_model, prompt_file,
         produce_files + compare_files,
         draft_file,
+        timeout_ms,
     )
     print(f"```bash\n{cmd}\n```\n")
     print("After the merge is complete, run:\n")
@@ -552,6 +642,7 @@ def _emit_audit(state: dict):
     out_dir = Path(state["out_dir"])
     tokens = state["tokens"]
     topic = state["topic"]
+    timeout_ms = state.get("timeout_ms", DEFAULT_TIMEOUT_MS)
     draft_file = out_dir / "_final-draft.md"
     audit_file = out_dir / "_audit.md"
 
@@ -583,6 +674,7 @@ def _emit_audit(state: dict):
         audit_model, prompt_file,
         [out_dir / "_criteria.md", draft_file] + all_compare_files,
         audit_file,
+        timeout_ms,
     )
     print(f"```bash\n{cmd}\n```\n")
     print("After the audit is complete, run:\n")
@@ -669,6 +761,36 @@ def _emit_cleanup(state: dict):
     print(f"```\n")
 
 
+def _build_compare_command(state: dict, round_num: int, token: str) -> str:
+    out_dir = Path(state["out_dir"])
+    tokens = state["tokens"]
+    topic = state["topic"]
+    timeout_ms = state.get("timeout_ms", DEFAULT_TIMEOUT_MS)
+
+    if token not in tokens:
+        raise ValueError(f"Unknown token '{token}'")
+
+    output_file = out_dir / f"r{round_num}-compare.{token}.md"
+    placeholders = {
+        "TOPIC": topic,
+        "ROUND": round_num,
+        "N": len(tokens),
+        "TOKEN": token,
+        "VARIANT_LIST": ", ".join(tokens.keys()),
+        "OUTPUT_FILE": str(output_file),
+    }
+    prompt_content = render_prompt("Step-B — Compare", placeholders)
+    prompt_file = write_prompt(out_dir, f"_prompt-r{round_num}b-{token}.md", prompt_content)
+    produce_files = [out_dir / f"r{round_num}-produce.{t}.md" for t in tokens]
+    return emit_subagent_cmd(
+        tokens[token],
+        prompt_file,
+        [out_dir / "_criteria.md"] + produce_files,
+        output_file,
+        timeout_ms,
+    )
+
+
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
@@ -702,6 +824,8 @@ def main():
     p_init.add_argument("--audit-model", default=None)
     p_init.add_argument("--debug", action="store_true")
     p_init.add_argument("--output-file", default=None)
+    p_init.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT_MS,
+                        help="Global timeout (ms) for all emitted opencode sub-agent commands")
 
     # score-round: extract scores and emit next phase
     p_score = sub.add_parser("score-round", help="Score a completed round and emit the next phase")
@@ -715,6 +839,9 @@ def main():
     # deliver: write _summary.md and emit cleanup
     p_del = sub.add_parser("deliver", help="Write summary and emit cleanup after audit")
     p_del.add_argument("--out-dir", required=True)
+
+    # doctor: environment checks
+    sub.add_parser("doctor", help="Run environment checks for runtime, AVX, and dependencies")
 
     args = parser.parse_args()
 
@@ -732,6 +859,8 @@ def main():
         cmd_finalize(args)
     elif args.command == "deliver":
         cmd_deliver(args)
+    elif args.command == "doctor":
+        cmd_doctor(args)
 
 
 if __name__ == "__main__":

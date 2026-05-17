@@ -47,6 +47,8 @@ Requirements:
   brief executive summary at the top.
 - Include actionable guidance, concrete examples, and references to known standards or
   specifications where applicable.
+- If a primary source is a PDF and webfetch returns binary or unreadable content, download
+  the PDF to a local file and use the Read tool on that local file to extract content.
 - Do not mention your own name, the name of any AI model, or any identifying information.
   The document must read as if written by an anonymous expert.
 
