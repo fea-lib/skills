@@ -7,11 +7,11 @@ Copy this file verbatim to `OUT_DIR/_criteria.md` when no custom criteria are su
 
 | Criterion | Weight | What it measures |
 |-----------|--------|-----------------|
-| prompt_fidelity | 2 | Does the document directly address the research prompt or question? For open topics: does it cover the expected scope? For specific questions: does it provide a clear, direct answer? |
-| content_completeness | 2 | Are all relevant facets of the topic covered? Are there notable gaps or omissions? |
+| prompt_fidelity | 4 | Does the document directly address the research prompt or question? For open topics: does it cover the expected scope? For specific questions: does it provide a clear, direct answer? |
+| content_completeness | 4 | Are all relevant facets of the topic covered? Are there notable gaps or omissions? |
+| depth_vs_breadth | 2 | Does the document go appropriately deep where it matters without padding thin topics? |
 | structural_clarity | 1 | Is the document easy to navigate? Are headings, flow, and information hierarchy logical? |
 | reader_comprehension | 1 | Is the writing clear for the intended audience? Are concepts explained without unexplained jargon? |
-| depth_vs_breadth | 1 | Does the document go appropriately deep where it matters without padding thin topics? |
 | practical_applicability | 1 | Does it include actionable guidance, code examples, patterns, or decision rules? |
 | source_credibility | 1 | Are claims grounded in known standards, specifications, or verifiable references? |
 
