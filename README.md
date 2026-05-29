@@ -1,3 +1,7 @@
+---
+title: 'Skills'
+---
+
 # Skills
 
 A collection of reusable AI agent skills — modular packages that extend agent capabilities with specialized knowledge, workflows, and bundled resources.
@@ -13,9 +17,9 @@ A collection of reusable AI agent skills — modular packages that extend agent 
 | [adw-refine](.agents/skills/adw-refine/SKILL.md) | Phase 6 of the agentic-dev-workflow: reviews tickets for gaps and missing acceptance criteria, then gates on human sign-off before execution. |
 | [adw-execution](.agents/skills/adw-execution/SKILL.md) | Phase 7 of the agentic-dev-workflow: implements tickets in dependency order, producing a Merge-Readiness Pack or Consultation Request Pack. |
 | [adw-qa](.agents/skills/adw-qa/SKILL.md) | Phase 8 of the agentic-dev-workflow: produces a human-in-the-loop verification checklist and rollback plan for the completed implementation. |
+| [research](.agents/skills/research/SKILL.md) | Runs durable, graph-driven research workflows with depth controls, checkpoint/AFK modes, quality gates, and local auditable run artifacts. |
 | [astro-starlight-charts](.agents/skills/astro-starlight-charts/SKILL.md) | Conventions, recipes, and anti-patterns for building static SVG chart components with Astro and D3. |
-| ~~research~~ | Deprecated. Use [multi-model-research](.agents/skills/multi-model-research/SKILL.md) as the replacement for structured research support and documented research reports. |
-| [multi-model-research](.agents/skills/multi-model-research/SKILL.md) | Orchestrates parallel multi-model research: multiple models independently research, anonymously compare, and iteratively merge findings into a single high-quality final document. |
+| ~~multi-model-research~~ | Deprecated. Use [research](.agents/skills/research/SKILL.md) for new research workflows. Keep multi-model-research only for legacy compatibility or explicit multi-model comparison requests. |
 | [game-studio](.agents/skills/game-studio/SKILL.md) | An LLM agent game studio that guides one active indie game project from idea to implementation through a fixed, phase-gated workflow with specialist role lenses and a deterministic CLI. |
 
 ## Structure

@@ -1,4 +1,5 @@
 ---
+title: 'Research Report: Effective and Shareable Agentic Development Workflows'
 generated: 2026-03-05
 research_depth: "primary + approved secondary (6 additional sources)"
 notebooklm_notebook: https://notebooklm.google.com/notebook/d6aebae5-247f-49f1-a2ec-f18b7b53ff5b

@@ -1,3 +1,7 @@
+---
+title: 'The Future of Agentic AI: Enterprise Autonomy, Infrastructure, and Systems Architecture (2025-2026)'
+---
+
 # The Future of Agentic AI: Enterprise Autonomy, Infrastructure, and Systems Architecture (2025-2026)
 
 ## Executive Summary

@@ -1,15 +1,19 @@
 ---
 name: multi-model-research
 description: >
-  Run the same research task across multiple models in parallel, compare their
-  outputs anonymously, and synthesise one final report. Use when the user asks
-  for multi-model research, wants multiple models to cross-check each other,
-  wants a result less shaped by one model's blind spots, or invokes this skill
-  with configuration intents such as `--config`, "configure default models",
-  "set research models", or "update the multi-model defaults".
+  Deprecated. Use the `research` skill for new research workflows. Keep this
+  skill only for legacy runs that explicitly require multi-model comparison or
+  existing `multi-model-research` artifacts/configuration.
 ---
 
 # Multi-Model Research
+
+This skill is **deprecated**.
+
+Use `research` as the default replacement for new work. Only continue here when:
+- A user explicitly requests legacy multi-model comparison behavior.
+- A run must resume from existing `multi-model-research` outputs.
+- Existing scripts/config in this skill are required for compatibility.
 
 Variants are anonymised to other models via tokenised filenames. A model may still
 recognise its own prior output, but does not know which other model produced the

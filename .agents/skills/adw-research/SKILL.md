@@ -14,7 +14,7 @@ Produce `2-research.md`. This artifact is the shared knowledge base for PRD, Pla
 Execution. Investing in it reduces ambiguity in every downstream phase.
 
 Scope: **codebase and task context only**. Do not fetch external documentation or sources —
-that is the role of the general `research` skill, which has different scope and audience.
+that is the role of `research`, which has different scope and audience.
 
 ## Steps
 

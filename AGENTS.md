@@ -1,3 +1,7 @@
+---
+title: 'Agent Instructions: AI Agent Skills Repository'
+---
+
 # Agent Instructions: AI Agent Skills Repository
 
 This repository stores reusable AI agent skills. When helping with skill creation or maintenance,

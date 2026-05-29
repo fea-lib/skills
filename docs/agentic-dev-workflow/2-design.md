@@ -1,4 +1,5 @@
 ---
+title: 'Design: Agentic Development Workflow Skill Library'
 generated: 2026-03-05
 status: decided
 based_on: 1-research.md
@@ -125,9 +126,9 @@ high collision surface with other installed skills; gating phase skills behind a
 orchestrator prerequisite makes them effectively unreachable without an active workflow
 session.
 
-### 4.3 adw-research is distinct from the general research skill
+### 4.3 adw-research is distinct from research
 
-The repository already contains a general-purpose `research` skill. The two are
+The repository also contains a general-purpose `research` skill. The two are
 complementary, not conflicting:
 
 | Dimension | `research` skill | `adw-research` phase skill |
