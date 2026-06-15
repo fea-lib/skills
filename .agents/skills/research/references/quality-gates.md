@@ -40,6 +40,10 @@ Run these checks before finalization. A failed gate should not be hidden.
 ## Suggested `evaluation.md` Layout
 
 ```markdown
+---
+title: Evaluation - <run-slug>
+---
+
 # Evaluation
 
 ## Gate Results

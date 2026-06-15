@@ -5,6 +5,10 @@ Use these templates to keep output stable and auditable.
 ## `brief.md`
 
 ```markdown
+---
+title: <Research Question>
+---
+
 # Research Brief
 
 ## Question
@@ -41,6 +45,10 @@ Use these templates to keep output stable and auditable.
 ## `source-inventory.md`
 
 ```markdown
+---
+title: Source Inventory - <run-slug>
+---
+
 # Source Inventory
 
 | ID | Source | Type | Date | Quality | Contribution | Limitations |
@@ -51,6 +59,10 @@ Use these templates to keep output stable and auditable.
 ## `notes/<source-id>.md`
 
 ```markdown
+---
+title: Source Note - <source-id>
+---
+
 # Source Note: <source-id>
 
 ## Metadata
@@ -75,6 +87,10 @@ Use these templates to keep output stable and auditable.
 ## `deferred-decisions.md` (AFK only)
 
 ```markdown
+---
+title: Deferred Decisions - <run-slug>
+---
+
 # Deferred Decisions
 
 | Time | Trigger Type | What Was Deferred | Impact | Branch/Node |
@@ -85,6 +101,10 @@ Use these templates to keep output stable and auditable.
 ## `final-report.md`
 
 ```markdown
+---
+title: <Report Title>
+---
+
 # <Report Title>
 
 ## Executive Summary

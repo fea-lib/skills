@@ -91,9 +91,9 @@ If invoked with no text, show a brief usage note then start the empty wizard.
 4. **Summary** — Display the full brief and the generated `/research` command.
    Ask "Looks good?" — confirm or cancel.
 5. **Save** — Write `brief.md` to
-   `<workspace-root>/docs/research/prompts/<slug>/`.
-   Derive slug from the research question; offer an override option during
-   the wizard.
+   `<workspace-root>/docs/research/<slug>/`.
+    Derive slug from the research question; offer an override option during
+    the wizard.
 6. **Handoff** — Print the copy-paste `/research` command, then ask "Run now?"
    If yes, proceed to the standard research execution workflow (step 1 of the
    Operating Model below). If no, exit.
@@ -113,13 +113,7 @@ issue and a concrete rewrite suggestion:
 | **Empty confidence threshold** | No evidence threshold set | Prompt with the 4-level picker: "What would be good enough to act on?" |
 | **Source blind spot** | Contradictory source policy (e.g., distrusts vendors but needs product comparisons) | Flag the contradiction and ask for resolution |
 
-### Staging directory
 
-- Save briefs to `<workspace-root>/docs/research/prompts/<slug>/brief.md`
-- This is a staging area separate from active run folders
-  (`docs/research/<run-slug>/`)
-- The prompt-builder does not create run folders, state files, or any other
-  research artifacts
 
 ## Operating Model
 

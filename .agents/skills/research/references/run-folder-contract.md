@@ -63,6 +63,10 @@ Status values:
 Use concise chronological entries:
 
 ```markdown
+---
+title: Run Log - <run-slug>
+---
+
 - 2026-05-29T12:00:00Z: Run initialized (depth=standard, mode=default)
 - 2026-05-29T12:01:20Z: Discovery branch A started
 - 2026-05-29T12:03:54Z: Checkpoint opened: material scope expansion
