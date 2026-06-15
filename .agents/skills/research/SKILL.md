@@ -25,6 +25,8 @@ Treat this as the v1 command surface:
 
 ```text
 /research <question> [--depth quick|standard|deep] [--afk] [--sources web,local,repos,docs,papers,video] [--allow-tool <name>] [--disallow-tool <name>] [--out <run-slug>] [--help]
+
+/research prompt-builder [<rough prompt text>]
 ```
 
 - Require `<question>`.
@@ -45,7 +47,9 @@ Use this exact option inventory in help output:
 Usage:
   /research <question> [--depth quick|standard|deep] [--afk] [--sources web,local,repos,docs,papers,video] [--allow-tool <name>] [--disallow-tool <name>] [--out <run-slug>] [--help]
 
-Options:
+  /research prompt-builder [<rough prompt text>]
+
+Options (research):
   --depth <quick|standard|deep>   Research budget and strictness (default: standard)
   --afk                           Disable mid-run checkpoints; defer decisions to final review
   --sources <list>                Comma-separated source classes: web,local,repos,docs,papers,video
@@ -54,6 +58,68 @@ Options:
   --out <run-slug>                Override output run folder slug
   --help                          Show summary, usage, and options without executing
 ```
+
+## Research Prompt Builder
+
+Use `/research prompt-builder [<rough prompt text>]` to enter an interactive
+wizard that helps craft a high-quality research brief. The wizard produces a
+saved `brief.md` and a copy-paste `/research` command string.
+
+If invoked with no text, show a brief usage note then start the empty wizard.
+
+### Interaction flow
+
+1. **Parse** — Extract known fields from the rough prompt (if any).
+2. **Wizard loop** — Ask one question at a time for each missing field. The
+   user can say "done" at any point to exit early. Collect these fields:
+   - Research question (required)
+   - Intended use / decision this informs (required)
+   - Depth: `quick|standard|deep` (required)
+   - AFK vs checkpoint mode
+   - Source preferences: `web,local,repos,docs,papers,video`
+   - Source distrusts / exclusions (free-text; show examples: vendor marketing,
+     social media, personal blogs, AI-generated content)
+   - Recency requirements
+   - Scope constraints (in scope / out of scope)
+   - Evidence threshold (4-level picker: gut check / standard / high
+     confidence / decision-grade, with free-text override)
+3. **Quality check pass** — Run the assembled brief through the heuristic
+   checklist below. For each fail or warn, show the issue and a concrete
+   rewrite suggestion. The user can accept the suggestion, override, or go
+   back to the relevant wizard question. Loop until all checks are resolved
+   or explicitly accepted-as-is.
+4. **Summary** — Display the full brief and the generated `/research` command.
+   Ask "Looks good?" — confirm or cancel.
+5. **Save** — Write `brief.md` to
+   `<workspace-root>/docs/research/prompts/<slug>/`.
+   Derive slug from the research question; offer an override option during
+   the wizard.
+6. **Handoff** — Print the copy-paste `/research` command, then ask "Run now?"
+   If yes, proceed to the standard research execution workflow (step 1 of the
+   Operating Model below). If no, exit.
+
+### Quality heuristic checklist
+
+Run each check against the assembled brief. For each failure, present the
+issue and a concrete rewrite suggestion:
+
+| Check | What it catches | Suggestion pattern |
+|---|---|---|
+| **Vagueness** | Question lacks a specific angle, comparison, or constraint | Push for actionable framing: "What specifically about X? A comparison between approaches? A performance question?" |
+| **Missing intended use** | No decision context; research will drift | Prompt: "What will you do with this information? What decision does it inform?" |
+| **Breadth/depth mismatch** | `--depth quick` with 6+ source types or a very broad scope | Warn and recommend adjusting depth or narrowing scope |
+| **Leading / bias** | Question assumes a conclusion ("Why is X better than Y?") | Suggest neutral reframe: "What are the tradeoffs between X and Y?" |
+| **Unstated assumptions** | Question implies a commitment the user hasn't validated | Surface: "Does this assume X is the right approach? Are alternatives in scope?" |
+| **Empty confidence threshold** | No evidence threshold set | Prompt with the 4-level picker: "What would be good enough to act on?" |
+| **Source blind spot** | Contradictory source policy (e.g., distrusts vendors but needs product comparisons) | Flag the contradiction and ask for resolution |
+
+### Staging directory
+
+- Save briefs to `<workspace-root>/docs/research/prompts/<slug>/brief.md`
+- This is a staging area separate from active run folders
+  (`docs/research/<run-slug>/`)
+- The prompt-builder does not create run folders, state files, or any other
+  research artifacts
 
 ## Operating Model
 
