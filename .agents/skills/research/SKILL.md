@@ -91,7 +91,8 @@ If invoked with no text, show a brief usage note then start the empty wizard.
 4. **Summary** — Display the full brief and the generated `/research` command.
    Ask "Looks good?" — confirm or cancel.
 5. **Save** — Write `brief.md` to
-   `<workspace-root>/docs/research/<slug>/`.
+    Follow project conventions on where to store research artifacts; fall
+    back to `<workspace-root>/docs/research/<slug>/`.
     Derive slug from the research question; offer an override option during
     the wizard.
 6. **Handoff** — Print the copy-paste `/research` command, then ask "Run now?"
@@ -139,7 +140,8 @@ Use the template in `references/templates.md`.
 Create a run folder and write only inside it during execution.
 
 Default location:
-- `<workspace-root>/docs/research/<run-slug>/`
+- Follow project conventions for research artifact storage; fall back to
+  `<workspace-root>/docs/research/<run-slug>/`
 
 Run slug precedence:
 1. `--out`
